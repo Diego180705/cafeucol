@@ -1,0 +1,323 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Syne:wght@700;800&display=swap');
+
+:root {
+  --verde:        #1B5E20;
+  --verde-mid:    #2E7D32;
+  --verde-soft:   #388E3C;
+  --verde-light:  #C8E6C9;
+  --verde-pale:   #F1F8F2;
+  --amber:        #F59E0B;
+  --amber-light:  #FEF3C7;
+  --rojo:         #DC2626;
+  --rojo-light:   #FEE2E2;
+  --blanco:       #FFFFFF;
+  --gris-bg:      #F5F6F8;
+  --gris-borde:   #E5E7EB;
+  --gris-texto:   #6B7280;
+  --negro:        #111827;
+  --radio:        14px;
+  --radio-lg:     20px;
+  --sombra:       0 2px 12px rgba(0,0,0,.08);
+  --sombra-lg:    0 8px 32px rgba(0,0,0,.12);
+  --fuente:       'Nunito', sans-serif;
+  --fuente-titulo:'Syne', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  font-family: var(--fuente);
+  background: var(--gris-bg);
+  color: var(--negro);
+  min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+}
+
+.app-shell {
+  max-width: 430px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  background: var(--gris-bg);
+  position: relative;
+  padding-bottom: 72px;
+}
+
+/* ── TOP BAR ─────────────────────────────────────── */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--verde);
+  padding: 14px 18px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.2);
+}
+.topbar-back {
+  background: rgba(255,255,255,.18);
+  border: none;
+  border-radius: 50%;
+  width: 36px; height: 36px;
+  display: grid; place-items: center;
+  cursor: pointer;
+  color: white;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.topbar-back:hover { background: rgba(255,255,255,.28); }
+.topbar h1 {
+  font-family: var(--fuente-titulo);
+  font-size: 18px;
+  color: white;
+  flex: 1;
+}
+.topbar-badge {
+  background: var(--amber);
+  color: var(--negro);
+  font-size: 12px;
+  font-weight: 800;
+  border-radius: 20px;
+  padding: 3px 10px;
+}
+
+/* ── BOTTOM NAV ──────────────────────────────────── */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 430px;
+  background: white;
+  border-top: 1px solid var(--gris-borde);
+  display: flex;
+  z-index: 100;
+  box-shadow: 0 -4px 20px rgba(0,0,0,.08);
+}
+.nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 10px 0 8px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  color: var(--gris-texto);
+  font-family: var(--fuente);
+  font-size: 11px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color .2s;
+  position: relative;
+}
+.nav-item .icon { font-size: 22px; }
+.nav-item.active { color: var(--verde-mid); }
+.nav-item.active::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 25%; right: 25%;
+  height: 3px;
+  background: var(--verde-mid);
+  border-radius: 0 0 4px 4px;
+}
+.nav-badge {
+  position: absolute;
+  top: 6px; right: calc(50% - 18px);
+  background: var(--rojo);
+  color: white;
+  font-size: 10px;
+  font-weight: 800;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  display: grid; place-items: center;
+}
+
+/* ── CARDS ───────────────────────────────────────── */
+.card {
+  background: white;
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+  overflow: hidden;
+}
+
+/* ── BUTTONS ─────────────────────────────────────── */
+.btn {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 14px 24px;
+  border-radius: var(--radio);
+  border: none;
+  font-family: var(--fuente);
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform .15s, box-shadow .15s, opacity .15s;
+  width: 100%;
+}
+.btn:active { transform: scale(.97); }
+.btn-primary {
+  background: var(--verde-mid);
+  color: white;
+  box-shadow: 0 4px 16px rgba(46,125,50,.35);
+}
+.btn-primary:hover { background: var(--verde); }
+.btn-secondary {
+  background: var(--verde-pale);
+  color: var(--verde-mid);
+  border: 2px solid var(--verde-light);
+}
+.btn-danger {
+  background: var(--rojo-light);
+  color: var(--rojo);
+}
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+
+/* ── STEPPER ─────────────────────────────────────── */
+.stepper {
+  display: flex;
+  align-items: center;
+  padding: 16px 18px;
+  background: white;
+  border-bottom: 1px solid var(--gris-borde);
+  gap: 0;
+}
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--gris-texto);
+  position: relative;
+}
+.step::after {
+  content: '';
+  position: absolute;
+  top: 12px; left: 55%; right: -45%;
+  height: 2px;
+  background: var(--gris-borde);
+}
+.step:last-child::after { display: none; }
+.step-dot {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: var(--gris-borde);
+  display: grid; place-items: center;
+  font-size: 11px;
+  font-weight: 800;
+  z-index: 1;
+}
+.step.done .step-dot  { background: var(--verde-light); color: var(--verde-mid); }
+.step.done::after     { background: var(--verde-light); }
+.step.active .step-dot{ background: var(--verde-mid); color: white; }
+.step.active { color: var(--verde-mid); }
+
+/* ── CHIPS ───────────────────────────────────────── */
+.chip {
+  display: inline-flex; align-items: center;
+  padding: 6px 14px;
+  border-radius: 100px;
+  font-size: 13px;
+  font-weight: 700;
+  border: 2px solid var(--gris-borde);
+  background: white;
+  cursor: pointer;
+  transition: all .2s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.chip.active {
+  background: var(--verde-pale);
+  border-color: var(--verde-soft);
+  color: var(--verde);
+}
+
+/* ── BADGE ESTADO ────────────────────────────────── */
+.badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 10px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.badge-recibido     { background: var(--amber-light); color: #92400E; }
+.badge-preparacion  { background: #DBEAFE; color: #1E40AF; }
+.badge-listo        { background: var(--verde-light); color: var(--verde); }
+
+/* ── HELPERS ─────────────────────────────────────── */
+.scroll-x {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 0 18px 4px;
+  scrollbar-width: none;
+}
+.scroll-x::-webkit-scrollbar { display: none; }
+
+.page-content { padding: 0 0 16px; }
+
+.empty-state {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 12px; padding: 60px 32px; text-align: center;
+}
+.empty-state .icon { font-size: 56px; }
+.empty-state h3 { font-size: 18px; font-weight: 800; }
+.empty-state p { color: var(--gris-texto); font-size: 14px; line-height: 1.5; }
+
+.section-pad { padding: 16px 18px 8px; }
+.section-title {
+  font-family: var(--fuente-titulo);
+  font-size: 17px;
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+
+input, textarea, select {
+  font-family: var(--fuente);
+  font-size: 15px;
+  width: 100%;
+  padding: 12px 14px;
+  border: 2px solid var(--gris-borde);
+  border-radius: var(--radio);
+  background: white;
+  color: var(--negro);
+  outline: none;
+  transition: border-color .2s;
+}
+input:focus, textarea:focus { border-color: var(--verde-soft); }
+.input-error { border-color: var(--rojo) !important; }
+.error-msg {
+  color: var(--rojo);
+  font-size: 12px;
+  font-weight: 700;
+  margin-top: 4px;
+  display: flex; align-items: center; gap: 4px;
+}
+
+/* ── PUNTOS / COINS ──────────────────────────────── */
+.coins-pill {
+  display: flex; align-items: center; gap: 5px;
+  background: var(--amber-light);
+  color: #92400E;
+  padding: 4px 12px;
+  border-radius: 100px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+/* ── ANIMACIONES ─────────────────────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes pop {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+.fade-up { animation: fadeUp .3s ease forwards; }
+.pop     { animation: pop .25s ease; }
