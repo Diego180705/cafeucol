@@ -2,174 +2,169 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useCarrito } from '../context/CarritoContext'
 import { usePuntos }  from '../context/PuntosContext'
+import { useToast }   from '../context/ToastContext'
 import Stepper from '../components/Stepper'
+import ConfirmModal from '../components/ConfirmModal'
 import axios from 'axios'
 
 export default function Confirmacion() {
   const { items, total, horario, vaciar } = useCarrito()
   const { registrarPedido, monedas }      = usePuntos()
-  const [enviando, setEnviando]           = useState(false)
-  const [exito,    setExito]              = useState(false)
-  const [pedidoId, setPedidoId]           = useState(null)
+  const [enviando,   setEnviando]         = useState(false)
+  const [exito,      setExito]            = useState(false)
+  const [pedidoId,   setPedidoId]         = useState(null)
+  const [confirmarModal, setConfirmarModal] = useState(false)
+  const toast    = useToast()
   const navigate = useNavigate()
 
-  async function confirmar() {
+  async function enviarPedido() {
+    setConfirmarModal(false)
     if (!horario || items.length === 0) return
     setEnviando(true)
     try {
       const productos = items.map(i => ({
-        id:       i.producto.id,
-        nombre:   i.producto.nombre,
-        precio:   i.producto.precio,
-        cantidad: i.cantidad,
-        nota:     i.nota,
+        id: i.producto.id, nombre: i.producto.nombre,
+        precio: i.producto.precio, cantidad: i.cantidad, nota: i.nota,
       }))
       const { data } = await axios.post('/api/pedidos', { productos, horario })
       setPedidoId(data.id)
-
-      // Registrar puntos y logros
       const categorias = [...new Set(items.map(i => i.producto.categoria || 'general'))]
       registrarPedido({ horario, categorias })
-
-      setExito(true)
       vaciar()
+      setExito(true)
     } catch (e) {
-      console.error(e)
+      toast.push('error', 'Error al enviar el pedido', 'Hubo un problema al procesar tu pedido. Inténtalo de nuevo.')
     } finally {
       setEnviando(false)
     }
   }
 
-  // ── Pantalla de éxito ──────────────────────────────────────
+  // ── Pantalla de éxito ──
   if (exito) return (
-    <div style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '32px 24px', textAlign: 'center' }}>
-      <div style={{ fontSize: 72, animation: 'pop .4s ease' }}>✅</div>
-      <h2 style={{ fontFamily: 'var(--fuente-titulo)', fontSize: 24, marginTop: 16 }}>
-        ¡Pedido enviado!
-      </h2>
-      <p style={{ color: 'var(--gris-texto)', marginTop: 8, lineHeight: 1.6 }}>
-        Tu pedido #{pedidoId} está en preparación.<br />
-        Recógelo a las <strong>{horario}</strong>.
+    <div className="page-content" style={{ maxWidth: 600, margin: '0 auto', textAlign: 'center', paddingTop: 60 }}>
+      <div style={{ fontSize: 80, animation: 'pop .4s ease' }}>✅</div>
+      <h2 style={{ fontFamily: 'var(--fuente-titulo)', fontSize: 28, marginTop: 20 }}>¡Pedido enviado!</h2>
+      <p style={{ color: 'var(--gris-texto)', marginTop: 10, fontSize: 15, lineHeight: 1.7 }}>
+        Tu pedido <strong>#{pedidoId}</strong> está siendo preparado.<br />
+        Pasa a recogerlo a las <strong>{horario}</strong> en la cafetería.
       </p>
       <div style={{
         background: 'var(--amber-light)', borderRadius: 16,
-        padding: '14px 24px', marginTop: 24,
-        display: 'flex', alignItems: 'center', gap: 10,
+        padding: '18px 28px', marginTop: 28,
+        display: 'inline-flex', alignItems: 'center', gap: 14,
       }}>
-        <span style={{ fontSize: 28 }}>🪙</span>
+        <span style={{ fontSize: 32 }}>🪙</span>
         <div style={{ textAlign: 'left' }}>
-          <div style={{ fontWeight: 800, fontSize: 14 }}>+30 CaféCoins ganados</div>
-          <div style={{ fontSize: 12, color: '#92400E' }}>Total: {monedas} monedas</div>
+          <div style={{ fontWeight: 800, fontSize: 16 }}>+30 CaféCoins ganados</div>
+          <div style={{ fontSize: 13, color: '#92400E', marginTop: 2 }}>Total acumulado: {monedas} monedas</div>
         </div>
       </div>
-      <button
-        className="btn btn-primary"
-        style={{ marginTop: 28, maxWidth: 300 }}
-        onClick={() => navigate('/historial')}
-      >
-        Ver mis pedidos
-      </button>
-      <button
-        className="btn btn-secondary"
-        style={{ marginTop: 10, maxWidth: 300 }}
-        onClick={() => navigate('/')}
-      >
-        Volver al Menú
-      </button>
+      <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginTop: 32 }}>
+        <button className="btn btn-primary" onClick={() => navigate('/historial')}>Ver mis pedidos</button>
+        <button className="btn btn-secondary" onClick={() => navigate('/')}>Volver al Menú</button>
+      </div>
     </div>
   )
 
   return (
     <div>
-      <div className="topbar">
-        <button className="topbar-back" onClick={() => navigate('/horario')}>←</button>
-        <h1>Confirmar Pedido</h1>
-      </div>
       <Stepper actual={3} />
 
-      <div style={{ padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 14 }}>
+      {/* Modal confirmación final antes de enviar */}
+      {confirmarModal && (
+        <ConfirmModal
+          titulo="¿Confirmar pedido?"
+          mensaje={`Enviarás un pedido por $${total} para recoger a las ${horario}. Una vez enviado, solo podrás cancelarlo si aún no está en preparación.`}
+          labelConfirmar="Sí, enviar pedido"
+          labelCancelar="Revisar de nuevo"
+          onConfirmar={enviarPedido}
+          onCancelar={() => setConfirmarModal(false)}
+        />
+      )}
 
-        {/* ── Productos ── */}
-        <div className="card" style={{ overflow: 'visible' }}>
-          <div style={{ padding: '14px 16px', borderBottom: '1px solid var(--gris-borde)', fontWeight: 800 }}>
-            🧾 Resumen del pedido
-          </div>
-          {items.map(({ producto, cantidad, nota }) => (
-            <div key={producto.id} style={{
-              padding: '12px 16px', borderBottom: '1px solid var(--gris-borde)',
-              display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12,
-            }}>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 700, fontSize: 14 }}>
-                  {cantidad}× {producto.nombre}
+      <div className="page-content" style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 24, alignItems: 'start' }}>
+
+        {/* ── Resumen productos ── */}
+        <div>
+          <div className="section-title">🧾 Resumen completo del pedido</div>
+          <div className="card">
+            {items.map(({ producto, cantidad, nota }, i) => (
+              <div key={producto.id} style={{
+                padding: '14px 18px',
+                borderBottom: i < items.length - 1 ? '1px solid var(--gris-borde)' : 'none',
+                display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16,
+              }}>
+                <div style={{ flex: 1 }}>
+                  {/* Nombre del producto — tipográficamente distinto al precio */}
+                  <div style={{ fontWeight: 800, fontSize: 15 }}>{cantidad}× {producto.nombre}</div>
+                  {nota && (
+                    <div style={{ fontSize: 12, color: 'var(--gris-texto)', marginTop: 4,
+                      background: 'var(--gris-bg)', padding: '4px 8px', borderRadius: 6, display: 'inline-block' }}>
+                      📝 {nota}
+                    </div>
+                  )}
                 </div>
-                {nota && (
-                  <div style={{ fontSize: 12, color: 'var(--gris-texto)', marginTop: 2 }}>
-                    📝 {nota}
-                  </div>
-                )}
+                <div style={{ fontWeight: 900, fontSize: 15, color: 'var(--verde-mid)', flexShrink: 0 }}>
+                  ${producto.precio * cantidad}
+                </div>
               </div>
-              <div style={{ fontWeight: 800, color: 'var(--verde-mid)', fontSize: 14, flexShrink: 0 }}>
-                ${producto.precio * cantidad}
-              </div>
+            ))}
+          </div>
+
+          <button className="btn btn-ghost btn-sm" style={{ marginTop: 12 }} onClick={() => navigate('/carrito')}>
+            ← Modificar pedido
+          </button>
+        </div>
+
+        {/* ── Panel lateral ── */}
+        <div style={{ position: 'sticky', top: 80, display: 'flex', flexDirection: 'column', gap: 14 }}>
+
+          {/* Horario */}
+          <div className="card" style={{ padding: '16px 18px' }}>
+            <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--gris-texto)', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 8 }}>
+              Horario de recolección
             </div>
-          ))}
-          <div style={{
-            padding: '14px 16px',
-            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          }}>
-            <span style={{ fontWeight: 800, fontSize: 16 }}>Total</span>
-            <span style={{ fontWeight: 900, fontSize: 22, color: 'var(--verde-mid)' }}>${total}</span>
-          </div>
-        </div>
-
-        {/* ── Horario ── */}
-        <div className="card" style={{ padding: '14px 16px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <span style={{ fontSize: 28 }}>⏰</span>
-            <div>
-              <div style={{ fontWeight: 800, fontSize: 14 }}>Hora de recolección</div>
-              <div style={{ fontFamily: 'var(--fuente-titulo)', fontSize: 22, color: 'var(--verde-mid)', fontWeight: 800 }}>
-                {horario}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ fontFamily: 'var(--fuente-titulo)', fontSize: 28, fontWeight: 800, color: 'var(--verde-mid)' }}>
+                ⏰ {horario}
               </div>
+              <button className="btn btn-ghost btn-sm" onClick={() => navigate('/horario')} title="Cambiar horario">
+                Cambiar
+              </button>
             </div>
-            <button
-              onClick={() => navigate('/horario')}
-              style={{
-                marginLeft: 'auto', background: 'var(--gris-bg)', border: 'none',
-                borderRadius: 8, padding: '6px 12px',
-                fontSize: 12, fontWeight: 700, cursor: 'pointer', color: 'var(--verde-mid)',
-              }}
-            >
-              Cambiar
-            </button>
           </div>
-        </div>
 
-        {/* ── Puntos que ganará ── */}
-        <div style={{
-          background: 'var(--amber-light)',
-          border: '2px solid #FDE68A', borderRadius: 14,
-          padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 10,
-        }}>
-          <span style={{ fontSize: 22 }}>🪙</span>
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#92400E' }}>
-            Ganarás +30 CaféCoins al confirmar este pedido
+          {/* Total */}
+          <div className="card" style={{ padding: '16px 18px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14, color: 'var(--gris-texto)', marginBottom: 6 }}>
+              <span>Subtotal</span><span>${total}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14, color: 'var(--gris-texto)', paddingBottom: 12, borderBottom: '1px solid var(--gris-borde)', marginBottom: 12 }}>
+              <span>Servicio</span><span>Gratis</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontWeight: 800, fontSize: 17 }}>Total</span>
+              <span style={{ fontWeight: 900, fontSize: 26, color: 'var(--verde-mid)' }}>${total}</span>
+            </div>
           </div>
-        </div>
 
-        {/* ── Botón ── */}
-        <button
-          className="btn btn-primary"
-          onClick={confirmar}
-          disabled={enviando}
-          style={{ marginTop: 4 }}
-        >
-          {enviando ? 'Enviando...' : '¡Confirmar Pedido! ✓'}
-        </button>
-        <button className="btn btn-secondary" onClick={() => navigate('/carrito')}>
-          Modificar pedido
-        </button>
+          {/* CaféCoins */}
+          <div style={{ background: 'var(--amber-light)', border: '2px solid #FDE68A', borderRadius: 12, padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{ fontSize: 22 }}>🪙</span>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#92400E' }}>
+              Ganarás +30 CaféCoins al confirmar
+            </div>
+          </div>
+
+          <button
+            className="btn btn-primary btn-full"
+            onClick={() => setConfirmarModal(true)}
+            disabled={enviando}
+            aria-busy={enviando}
+          >
+            {enviando ? '⏳ Enviando pedido...' : '✓ Confirmar Pedido'}
+          </button>
+        </div>
       </div>
     </div>
   )
