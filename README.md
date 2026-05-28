@@ -102,9 +102,9 @@ Cancelación de pedidos con confirmación previa
 Ludificación
 
 CaféCoins: +10 por pedido completado, +20 por pedido anticipado
-Rachas diarias con indicador 🔥
+Rachas diarias con indicador 
 6 logros desbloqueables con notificación toast al conseguirlos
-Niveles: Nuevo Cliente → Cliente Regular → Favorito → VIP ⭐
+Niveles: Nuevo Cliente → Cliente Regular → Favorito → VIP 
 Barra de progreso hacia el siguiente nivel
 
 Accesibilidad y usabilidad
