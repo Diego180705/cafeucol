@@ -82,7 +82,7 @@ export default function Confirmacion() {
         />
       )}
 
-      <div className="page-content" style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 24, alignItems: 'start' }}>
+      <div className="page-content" style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 24, alignItems: 'start' }} data-grid="confirmar">
 
         {/* ── Resumen productos ── */}
         <div>

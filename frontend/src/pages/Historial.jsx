@@ -89,7 +89,7 @@ export default function Historial() {
           <button className="btn btn-primary" onClick={() => navigate('/')}>Hacer un pedido</button>
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(380px, 1fr))', gap: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(380px, 1fr))', gap: 16 }} data-grid="historial">
           {filtrados.map(pedido => {
             const est   = ESTADOS[pedido.estado] || ESTADOS.recibido
             const fecha = new Date(pedido.creadoEn).toLocaleString('es-MX', {

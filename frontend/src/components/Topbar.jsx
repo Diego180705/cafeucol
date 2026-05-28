@@ -11,31 +11,40 @@ const TITULOS = {
   '/perfil':    'Mi Perfil y Logros',
 }
 
-const CON_BACK = ['/carrito', '/horario', '/confirmar']
-
 const BACK_DESTINO = {
   '/carrito':   '/',
   '/horario':   '/carrito',
   '/confirmar': '/horario',
 }
 
-export default function Topbar() {
+export default function Topbar({ onMenuClick }) {
   const { cantidad, total } = useCarrito()
-  const { racha } = usePuntos()
-  const location  = useLocation()
-  const navigate  = useNavigate()
+  const { racha }           = usePuntos()
+  const location            = useLocation()
+  const navigate            = useNavigate()
 
-  const titulo   = TITULOS[location.pathname] || 'CaféUCOL'
-  const tieneBack = CON_BACK.includes(location.pathname)
+  const titulo    = TITULOS[location.pathname] || 'CaféUCOL'
+  const backDest  = BACK_DESTINO[location.pathname]
 
   return (
     <header className="topbar" role="banner">
-      {tieneBack && (
+
+      {/* Botón hamburguesa — solo visible en móvil (CSS) */}
+      <button
+        className="topbar-menu-btn"
+        onClick={onMenuClick}
+        aria-label="Abrir menú de navegación"
+        title="Menú"
+      >
+        ☰
+      </button>
+
+      {/* Botón regresar — solo en pantallas con back */}
+      {backDest && (
         <button
           className="topbar-back"
-          onClick={() => navigate(BACK_DESTINO[location.pathname])}
+          onClick={() => navigate(backDest)}
           aria-label="Regresar a la pantalla anterior"
-          title="Regresar"
         >
           ← Regresar
         </button>
@@ -43,21 +52,23 @@ export default function Topbar() {
 
       <h2 className="topbar-title">{titulo}</h2>
 
-      {/* Racha activa */}
+      {/* Racha — se oculta en móvil con CSS */}
       {racha > 0 && location.pathname === '/' && (
-        <div className="topbar-racha" title={`Llevas ${racha} días consecutivos usando la app`}>
+        <div className="topbar-racha" title={`${racha} días consecutivos`}>
           🔥 {racha} días en racha
         </div>
       )}
 
-      {/* ── BOTÓN CARRITO en topbar ── */}
+      {/* Botón carrito siempre visible */}
       <Link
         to="/carrito"
         className="topbar-cart-btn"
         aria-label={`Ver carrito: ${cantidad} productos, total $${total}`}
-        title="Ver mi pedido actual"
+        title="Ver mi pedido"
       >
-        🛒 Mi Pedido
+        🛒
+        {/* La etiqueta se oculta en móvil con .topbar-cart-label */}
+        <span className="topbar-cart-label">Mi Pedido</span>
         {cantidad > 0 && (
           <>
             <span style={{ fontWeight: 900, color: 'var(--verde)' }}>${total}</span>

@@ -71,7 +71,7 @@ export default function Carrito() {
         />
       )}
 
-      <div className="page-content" style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 24, alignItems: 'start' }}>
+      <div className="page-content" style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 24, alignItems: 'start' }} data-grid="carrito">
 
         {/* ── Lista de productos ── */}
         <div>
